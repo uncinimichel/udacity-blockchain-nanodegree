@@ -1,0 +1,10 @@
+# gitignore
+
+node_modules
+
+chaindata
+
+# Only apps should have lockfiles
+yarn.lock
+package-lock.jso
+.idea
