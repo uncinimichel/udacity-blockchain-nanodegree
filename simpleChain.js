@@ -34,7 +34,7 @@ class Blockchain {
             // .then(() => this.initBlockchain.re)
             .catch(function (err) {
                 //    check the error is NotFoundError
-                console.log("error alalalallaallalalaalalalallaallalalaalalalallaallalala", Object.keys(err));
+                console.log("Check the error is NotFoundError", Object.keys(err));
                 return levelDb.addLevelDBData(persistentName, [])
                     .then(_ => {
                         console.log("Creating genesis");
@@ -60,7 +60,7 @@ class Blockchain {
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
         // Adding block object to chain
         chain.push(newBlock);
-        return levelDb.addLevelDBData(persistentName, chain);
+        return levelDb.addLevelDBData(persistentName, chain).then( _ => newBlock);
     }
 
     _validateBlock(block) {
@@ -110,7 +110,7 @@ class Blockchain {
     }
 
     // validate block
-    validateBlockByBlockNumber(blockHeight) {
+    validateBlock(blockHeight) {
         // get block object
         return this.getChain()
             .then(chain => this._validateBlock(chain[blockHeight]))
@@ -147,28 +147,6 @@ class Blockchain {
     }
 }
 
-let node = new Blockchain();
-let block1 = new Block("Block 0");
-let block2 = new Block("Block 1");
-let block3 = new Block("Block 2");
-let block4 = new Block("Block 3");
 
-node.walkChain().then();
-
-// node.addBlock(block1)
-//     .then(_ => node.addBlock(block2))
-//     .then(_ => node.addBlock(block3))
-//     .then(_ => node.addBlock(block4))
-//     .then(_ => node.getBlockHeight())
-//     .then(height => console.log("Blockchain height:", height))
-//     .then(_ => node.getBlock(4))
-//     .then(block => console.log("I got this block:", block))
-//     .then(_ => node.validateBlockByBlockNumber(0))
-//     .then(isvalid => console.log("valid block?", isvalid))
-//     .then(_ => node.validateChain())
-//     .catch(err => console.log(err));
-
-
-
-
-
+module.exports = { Blockchain : Blockchain,
+                   Block : Block}
