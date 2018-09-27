@@ -37,7 +37,7 @@ module.exports = {
                     story: story,
                     storyDecoded: Buffer.from(story,'hex').toString()}
 
-        return star;
+        return {star: star};
     }
 };
 
