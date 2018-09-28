@@ -27,28 +27,33 @@ app.post('/block', function (req, res){
     }
 
     if (!tempAddresses[address].registerStar || tempAddresses[address].registerStar === false) {
-            res.status(401).send("You are not validated");
-            return;
+        res.status(401).send("You are not validated");
+        return;
     }
-
-    delete tempAddresses[address];
 
     try{
         star = domain.encodeStar(starRow);
     } catch(err) {
-        res.status(400).send(err.message);
+        res.status(422).send(err.message);
         return;
     }
+
     blockchain.addBlock(new chain.Block({...star, address}))
         .then(newBlock => res.send(newBlock))
+        .then( _ => delete tempAddresses[address])
         .catch(err => res.status(500).send("ERR: " + err));
 })
 
 
+function attachDecodedStarToBlock(block){
+    block.body.star = domain.decodeStar(block.body.star);
+    return block
+}
+
 app.get('/block/:height', function (req, res) {
     const height = req.params.height;
     blockchain.getBlock(height)
-               .then(block => domain.decodeStar(block.body.star))
+               .then(blocks => blocks.map(attachDecodedStarToBlock))
                .then(filterBlocks => res.json(filterBlocks))
                .catch(err => res.send("ERR: " + err));
 })
@@ -57,7 +62,7 @@ app.get('/stars/address::address', function (req, res) {
     const address = req.params.address;
     blockchain.getChain()
                .then(chain => chain.filter(block =>((block||{}).body || {}).address === address))
-               .then(blocks => blocks.map(block => domain.decodeStar(block.body.star)))
+               .then(blocks => blocks.map(attachDecodedStarToBlock))
                .then(filterBlocks => res.json(filterBlocks))
                .catch(err => res.send("ERR: " + err));
 })
@@ -66,7 +71,7 @@ app.get('/stars/hash::hash', function (req, res) {
     const hash = req.params.hash;
     blockchain.getChain()
                .then(chain => chain.filter(block => block.hash === hash))
-               .then(blocks => blocks.map(block => domain.decodeStar(block.body.star)))
+               .then(blocks => blocks.map(attachDecodedStarToBlock))
                .then(filterBlocks => res.json(filterBlocks))
                .catch(err => res.send("ERR: " + err));
 })
@@ -78,7 +83,7 @@ app.post('/requestValidation', function (req, res) {
         return;
     }
 
-    const defaultValidationWindow = 30000;
+    const defaultValidationWindow = 300000;
     const timeStamp = Date.now();
     let tempMessage = {}
 
