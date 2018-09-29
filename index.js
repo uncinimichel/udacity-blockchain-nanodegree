@@ -53,7 +53,7 @@ function attachDecodedStarToBlock(block){
 app.get('/block/:height', function (req, res) {
     const height = req.params.height;
     blockchain.getBlock(height)
-               .then(blocks => blocks.map(attachDecodedStarToBlock))
+               .then(attachDecodedStarToBlock)
                .then(filterBlocks => res.json(filterBlocks))
                .catch(err => res.send("ERR: " + err));
 })
