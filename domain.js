@@ -8,12 +8,17 @@ function removeUndefined(val) {
         }, {})
 }
 
+
+function isASCII(str) {
+    return /^[\x00-\x7F]*$/.test(str);
+}
+
 module.exports = {
 
     encodeStar: function (rawStar) {
         ({ma, co, dec, ra, star_story} = rawStar);
-        if (!star_story || star_story.length > 250) {
-            throw new Error("star_story is a mandatory field of <= 250 characters");
+        if (!isASCII(star_story)|| !star_story || star_story.length > 250) {
+            throw new Error("star_story is a mandatory field of <= 250 characters and only ASCII");
         }
         if (!dec || !ra){
             throw new Error("dec and ra is a mandatory field");
